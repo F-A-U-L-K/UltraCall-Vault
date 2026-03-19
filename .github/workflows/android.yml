@@ -1,4 +1,4 @@
-name: Mobile Auto-Build (Version Sync)
+name: Mobile Auto-Build (Final Fix)
 on: [push]
 
 env:
@@ -10,43 +10,61 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 1. Clean Workspace
+      # 1. Start with a clean slate
+      - name: Scrub Workspace
         run: |
           find . -maxdepth 1 ! -name 'project.zip' ! -name '.github' ! -name '.' -exec rm -rf {} +
 
-      - name: 2. Extract Project
+      # 2. Extract and clear out local cache folders from the ZIP
+      - name: Extract Project
         run: |
           unzip project.zip -d extracted_files
           cp -r extracted_files/*/* . || cp -r extracted_files/* . || true
           rm -rf build .gradle app/build
 
-      - name: 3. Setup Java 17
+      # 3. Create a Modern Settings File (Crucial for Plugin Discovery)
+      - name: Create Settings & Properties
+        run: |
+          cat <<EOF > settings.gradle
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "UltraCall-Vault"
+          include ':app'
+          EOF
+          
+          echo "android.useAndroidX=true" > gradle.properties
+          echo "android.enableJetifier=true" >> gradle.properties
+          echo "android.nonTransitiveRClass=false" >> gradle.properties
+
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 4. Create Project Files
+      # 4. Downgrade from 9.4 to 8.5 (Fixes the Mutation Error)
+      - name: Downgrade Gradle to 8.5
         run: |
-          # Create a fresh settings file to avoid conflicts
-          echo "include ':app'" > settings.gradle
-          
-          # Force AndroidX and disable the strict check causing the mutation error
-          echo "android.useAndroidX=true" > gradle.properties
-          echo "android.enableJetifier=true" >> gradle.properties
-          echo "android.nonTransitiveRClass=false" >> gradle.properties
-
-      - name: 5. Force Gradle 8.5 (Critical Fix)
-        run: |
-          # This replaces the "System Gradle 9.4" with a version compatible with your code
           gradle wrapper --gradle-version 8.5
           chmod +x gradlew
 
-      - name: 6. Build APK
-        run: |
-          ./gradlew assembleDebug --no-configuration-cache --stacktrace
+      # 5. Build the APK
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --no-configuration-cache --stacktrace
 
-      - name: 7. Upload Result
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: UltraCall-Vault-APK
