@@ -1,22 +1,53 @@
-name: Mobile Android Build
+name: Mobile Auto-Build (Clean Slate)
 on: [push]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # STEP 1: Delete everything EXCEPT the zip file
+      - name: Scrub Workspace
+        run: |
+          find . -maxdepth 1 ! -name 'project.zip' ! -name '.github' ! -name '.' -exec rm -rf {} +
+          ls -R # This shows the log what survived (should just be project.zip)
+
+      # STEP 2: Extract your Project
+      - name: Extract Project Files
+        run: |
+          unzip project.zip -d extracted_files
+          
+      # STEP 3: Move files to root & Fix Permissions
+      - name: Organize Structure
+        run: |
+          # Moves contents from subfolders if they exist
+          cp -r extracted_files/*/* . || cp -r extracted_files/* . || true
+          
+      # STEP 4: Ensure Gradle exists (Emergency Backup)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Make Gradle Executable
-        run: chmod +x gradlew
+
+      - name: Generate Wrapper if Missing
+        run: |
+          if [ ! -f "gradlew" ]; then
+            gradle wrapper
+          fi
+          chmod +x gradlew
+
+      # STEP 5: Run the Build
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
-      - name: Upload APK Artifact
+        run: ./gradlew assembleDebug --stacktrace
+
+      # STEP 6: Save the APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: my-app-bundle
+          name: UltraCall-Vault-APK
           path: app/build/outputs/apk/debug/*.apk
