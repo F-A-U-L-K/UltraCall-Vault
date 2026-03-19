@@ -1,4 +1,4 @@
-name: Mobile Auto-Build (Clean Slate)
+name: Mobile Auto-Build (Final Fix)
 on: [push]
 
 env:
@@ -10,44 +10,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # STEP 1: Delete everything EXCEPT the zip file
       - name: Scrub Workspace
         run: |
           find . -maxdepth 1 ! -name 'project.zip' ! -name '.github' ! -name '.' -exec rm -rf {} +
-          ls -R # This shows the log what survived (should just be project.zip)
 
-      # STEP 2: Extract your Project
-      - name: Extract Project Files
+      - name: Extract and Organize
         run: |
           unzip project.zip -d extracted_files
-          
-      # STEP 3: Move files to root & Fix Permissions
-      - name: Organize Structure
-        run: |
-          # Moves contents from subfolders if they exist
           cp -r extracted_files/*/* . || cp -r extracted_files/* . || true
           
-      # STEP 4: Ensure Gradle exists (Emergency Backup)
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: gradle
 
-      - name: Generate Wrapper if Missing
+      - name: Build APK
+        # The --no-configuration-cache flag is key to fixing your specific error
         run: |
-          if [ ! -f "gradlew" ]; then
-            gradle wrapper
-          fi
           chmod +x gradlew
+          ./gradlew assembleDebug --no-configuration-cache --stacktrace
 
-      # STEP 5: Run the Build (Modified for Mutation Error)
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-configuration-cache --stacktrace
-        
-      # STEP 6: Save the APK
-      - name: Upload APK
+      - name: Upload Result
         uses: actions/upload-artifact@v4
         with:
-          name: UltraCall-Vault-APK
+          name: UltraCall-Vault-Build
           path: app/build/outputs/apk/debug/*.apk
