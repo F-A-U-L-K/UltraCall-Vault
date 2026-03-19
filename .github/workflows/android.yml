@@ -41,10 +41,10 @@ jobs:
           fi
           chmod +x gradlew
 
-      # STEP 5: Run the Build
+      # STEP 5: Run the Build (Modified for Mutation Error)
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
-
+        run: ./gradlew assembleDebug --no-configuration-cache --stacktrace
+        
       # STEP 6: Save the APK
       - name: Upload APK
         uses: actions/upload-artifact@v4
