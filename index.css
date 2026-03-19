@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  --color-vault-bg: #000111;
+  --color-vault-cyan: #00f5ff;
+  --color-vault-purple: #a855f7;
+  --color-vault-card: rgba(10, 15, 30, 0.85);
+  --color-vault-border: rgba(0, 245, 255, 0.15);
+  --color-vault-glass: rgba(0, 245, 255, 0.05);
+  --color-vault-text: #e2e8f0;
+  --color-vault-muted: #64748b;
+  --color-vault-danger: #ef4444;
+  --color-vault-success: #22c55e;
+  --color-vault-warning: #f59e0b;
+  --font-orbitron: "Orbitron", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 245, 255, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(0, 245, 255, 0.3);
+  border-radius: 20px;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #000111;
+  color: #e2e8f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 245, 255, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(0, 245, 255, 0.6); }
+}
+
+@keyframes recording-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@keyframes wave {
+  0% { height: 4px; }
+  50% { height: 20px; }
+  100% { height: 4px; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.glass-card {
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 245, 255, 0.15);
+  border-radius: 16px;
+}
+
+.glass-card-purple {
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  border-radius: 16px;
+}
+
+.neon-text {
+  color: #00f5ff;
+  text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+}
+
+.neon-text-purple {
+  color: #a855f7;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+}
+
+.neon-border {
+  border-color: rgba(0, 245, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 245, 255, 0.1);
+}
+
+.neon-button {
+  background: linear-gradient(135deg, #00f5ff, #a855f7);
+  color: #000111;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.neon-button:hover {
+  box-shadow: 0 0 30px rgba(0, 245, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.neon-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+.recording-dot {
+  animation: recording-pulse 1s ease-in-out infinite;
+}
