@@ -1,4 +1,4 @@
-name: Mobile Auto-Build (Plugin Fix)
+name: Mobile Auto-Build (Final Sync)
 on: [push]
 
 env:
@@ -18,11 +18,12 @@ jobs:
         run: |
           unzip project.zip -d extracted_files
           cp -r extracted_files/*/* . || cp -r extracted_files/* . || true
+          # Force delete old build caches that cause "Mutation" errors
           rm -rf build .gradle app/build
 
-      - name: 3. Create Plugin Management (Crucial for Gradle 9+)
+      - name: 3. Create Modern Settings File
         run: |
-          # This tells Gradle to search Google's servers for the Android Plugin
+          # This tells Gradle 9.4.0 exactly where to find the Android tools
           cat <<EOF > settings.gradle
           pluginManagement {
               repositories {
@@ -38,6 +39,7 @@ jobs:
                   mavenCentral()
               }
           }
+          rootProject.name = "UltraCall-Vault"
           include ':app'
           EOF
 
@@ -49,11 +51,12 @@ jobs:
 
       - name: 5. Build APK
         run: |
-          # We'll use the system Gradle since the wrapper was missing
+          # chmod ensures the script has permission to run on Linux
+          chmod +x gradlew || true
           gradle assembleDebug --no-configuration-cache --stacktrace
 
       - name: 6. Upload Result
         uses: actions/upload-artifact@v4
         with:
-          name: UltraCall-Vault-Build
+          name: UltraCall-Vault-APK
           path: app/build/outputs/apk/debug/*.apk
