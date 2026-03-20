@@ -1,0 +1,13 @@
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build web application
+        run: |
+          cd www
+          npm ci
+          npm run build
+
+      - name: Build Android APK
+        run: ./gradlew assembleDebug
