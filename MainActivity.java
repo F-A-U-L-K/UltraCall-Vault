@@ -158,7 +158,22 @@ public class MainActivity extends AppCompatActivity {
         
         // Cache
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        settings.setAppCacheEnabled(true);
+        // settings.setAppCacheEnabled(true);
+        // Essential cache settings for modern Android (API 21+)
+settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK); // Uses cache if available
+settings.setAppCacheEnabled(false); // Explicitly disable old app cache (optional cleanup)
+
+// Other recommended WebView settings (example):
+settings.setJavaScriptEnabled(true);
+settings.setDomStorageEnabled(true); // Use DOM storage instead of app cache
+settings.setLoadsImagesAutomatically(true);
+// ... other settings ...
+
+// REMOVE OR COMMENT OUT THE NEXT LINE:
+// settings.setAppCacheEnabled(true); 
+
+// If you need cache functionality for modern Android, use these instead:
+settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK); // Recommended alternative
         
         // Zoom
         settings.setSupportZoom(false);
